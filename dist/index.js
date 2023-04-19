@@ -111,7 +111,14 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         }
         for (const input of inputs) {
             core.debug(`Retrieving secret value using notation [${input.notation}]`);
-            const secret = (0, secrets_manager_core_1.getValue)(secrets, input.notation);
+            let secret;
+            if (input.notation.includes('sshkeyprivatekey')) {
+                const filteredrecords = secrets.records.filter(x => x.recordUid === input.notation.split('/')[0]);
+                secret = filteredrecords[0].data.fields[1].value[0].privateKey;
+            }
+            else {
+                secret = (0, secrets_manager_core_1.getValue)(secrets, input.notation);
+            }
             core.setSecret(secret);
             switch (input.destinationType) {
                 case DestinationType.output:
